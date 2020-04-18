@@ -1,0 +1,16 @@
+docker build -t bboze/multi-client:latest -t bboze/multi-client:$SHA -f ./client/Dockerfile ./client
+docker build -t bboze/multi-server:latest -t bboze/multi-server:$SHA -f ./server/Dockerfile ./server
+docker build -t bboze/multi-worker:latest -t bboze/multi-worker:$SHA -f ./worker/Dockerfile ./worker
+
+docker push bboze/multi-client:latest
+docker push bboze/multi-server:latest
+docker push bboze/multi-worker:latest
+
+docker push bboze/multi-client:$SHA
+docker push bboze/multi-server:$SHA
+docker push bboze/multi-worker:$SHA
+
+kubectl apply -f k8s
+kubectl set image deployments/server-deployment server=bboze/multi-server:$SHA
+kubectl set image deployments/client-deployment client=bboze/multi-client:$SHA
+kubectl set image deployments/worker-deployment worker=bboze/multi-worker:$SHA
